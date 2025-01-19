@@ -24,6 +24,7 @@ class SimpleComicViewer : public QWidget {
 
 public:
     int sleepTime = 0;
+    QString filePath = "";
 
     SimpleComicViewer(QWidget *parent = nullptr) : QWidget(parent), currentIndex(-1) {
         // Setup layout
@@ -33,29 +34,29 @@ public:
         // Create widgets
         imageLabel = new QLabel("Image not loaded");
         imageLabel->setAlignment(Qt::AlignCenter);
-        imagePathEdit = new QLineEdit();
-        QPushButton *browseButton = new QPushButton("Browse");
-        QPushButton *loadButton = new QPushButton("Load Archive");
+        //imagePathEdit = new QLineEdit();
+        QPushButton *browseButton = new QPushButton("Load");
+        //QPushButton *loadButton = new QPushButton("Load Archive");
         QPushButton *prevButton = new QPushButton("Previous");
         QPushButton *nextButton = new QPushButton("Next");
-        QPushButton *exitButton = new QPushButton("Exit");
+        //QPushButton *exitButton = new QPushButton("Exit");
 
         // Setup layout
         mainLayout->addWidget(imageLabel);
-        controlLayout->addWidget(imagePathEdit);
+        //controlLayout->addWidget(imagePathEdit);
+        //controlLayout->addWidget(loadButton);
+        controlLayout->addWidget(prevButton);
         controlLayout->addWidget(browseButton);
-        controlLayout->addWidget(loadButton);
+        controlLayout->addWidget(nextButton);
+        //controlLayout->addWidget(exitButton);
         mainLayout->addLayout(controlLayout);
-        mainLayout->addWidget(prevButton);
-        mainLayout->addWidget(nextButton);
-        mainLayout->addWidget(exitButton);
 
         // Connect signals and slots
         connect(browseButton, &QPushButton::clicked, this, &SimpleComicViewer::browseArchive);
-        connect(loadButton, &QPushButton::clicked, this, &SimpleComicViewer::loadArchive);
+        //connect(loadButton, &QPushButton::clicked, this, &SimpleComicViewer::loadArchive);
         connect(prevButton, &QPushButton::clicked, this, &SimpleComicViewer::showPreviousImage);
         connect(nextButton, &QPushButton::clicked, this, &SimpleComicViewer::showNextImage);
-        connect(exitButton, &QPushButton::clicked, this, &QWidget::close);
+        //connect(exitButton, &QPushButton::clicked, this, &QWidget::close);
 
         // Initialize placeholder pixmap
         placeholderPixmap = QPixmap(800, 600);
@@ -66,15 +67,15 @@ public:
 
 private slots:
     void browseArchive() {
-        QString filePath = QFileDialog::getOpenFileName(this, "Open Archive File", "", "Archives (*.zip);;Comics in CBZ format (*.cbz)");
+        filePath = QFileDialog::getOpenFileName(this, "Open Archive File", "", "Archives (*.zip);;Comics in CBZ format (*.cbz)");
         if (!filePath.isEmpty()) {
-            imagePathEdit->setText(filePath);
+            //imagePathEdit->setText(filePath);
             loadArchive();
         }
     }
 
     void loadArchive() {
-        QString filePath = imagePathEdit->text();
+        //QString filePath = imagePathEdit->text();
         if (filePath.isEmpty()) {
             QMessageBox::warning(this, "Warning", "Please enter a valid file path.");
             return;
@@ -124,7 +125,7 @@ private slots:
         connect(watcher, &QFutureWatcher<void>::finished, this, &SimpleComicViewer::onImagesLoaded);
 
         QFuture<void> future = QtConcurrent::run([this]() {
-            QuaZip zip(imagePathEdit->text());
+            QuaZip zip(filePath);
             if (!zip.open(QuaZip::mdUnzip)) return;
 
             for (int i = 0; i < zipFiles.size(); ++i) {
@@ -180,7 +181,7 @@ private slots:
 
 private:
     QLabel *imageLabel;
-    QLineEdit *imagePathEdit;
+    //QLineEdit *imagePathEdit;
     QList<QPixmap> images;
     QStringList zipFiles;
     int currentIndex;
