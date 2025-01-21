@@ -9,8 +9,7 @@ class MyComic : public QWidget {
 
 public :
     MyComic(QWidget *parent = nullptr);
-
-
+    
 private :
     int nbPages;
     QList<QPixmap> pages;

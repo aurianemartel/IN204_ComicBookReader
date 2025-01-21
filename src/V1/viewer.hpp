@@ -23,7 +23,7 @@ private slots :
 
 private :
     int currentIndex = 0;
-    QLabel *imageLabel;
+    QLabel *imageBox;
     MyComic* comic = NULL;
     QString filePath = "";
 };

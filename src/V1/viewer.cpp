@@ -3,10 +3,10 @@
 // #include <QCommandLineOption>
 // #include <QWidget>
 #include <QVBoxLayout>
-// #include <QHBoxLayout>
-// #include <QLabel>
+#include <QHBoxLayout>
+#include <QLabel>
 // #include <QLineEdit>
-// #include <QPushButton>
+#include <QPushButton>
 // #include <QPixmap>
 // #include <QMessageBox>
 // #include <QFileDialog>
@@ -23,12 +23,44 @@
 
 
 MyViewer::MyViewer(QWidget *parent) : QWidget(parent) {
-    QVBoxLayout *mainLayout = new QVBoxLayout(this);
-    
-    imageLabel = new QLabel("Image not loaded");
-    imageLabel->setAlignment(Qt::AlignCenter);
+    // Mise en place de l'organisation de la fenêtre
+    QHBoxLayout *mainLayout = new QHBoxLayout(this);
+    QVBoxLayout *menu = new QVBoxLayout();
+    QVBoxLayout *left = new QVBoxLayout();
+    QVBoxLayout *right = new QVBoxLayout();
 
-    mainLayout->addWidget(imageLabel);
+    // Création des widgets
+    imageBox = new QLabel("Image not loaded");
+    imageBox->setAlignment(Qt::AlignCenter);
+
+    QPushButton *loadButton = new QPushButton("Load");
+    loadButton->setFixedSize(100, 25);
+    QPushButton *previousButton = new QPushButton("<");
+    previousButton->setFixedSize(50, 200);
+    QPushButton *firstButton = new QPushButton("<<");
+    firstButton->setFixedSize(50, 50);
+    QPushButton *nextButton = new QPushButton(">");
+    nextButton->setFixedSize(50, 200);
+    QPushButton *lastButton = new QPushButton(">>");
+    lastButton->setFixedSize(50, 50);
+
+    // Montage des widgets dans la fenêtre
+    menu->addWidget(loadButton, 0, Qt::AlignTop);
+    mainLayout->addLayout(menu);
+
+    left->addStretch(1);
+    left->addWidget(previousButton, 0, Qt::AlignVCenter);
+    left->addStretch(1);
+    left->addWidget(firstButton, 0, Qt::AlignBottom);
+    mainLayout->addLayout(left);
+
+    mainLayout->addWidget(imageBox);
+
+    right->addStretch(1);
+    right->addWidget(nextButton, 0, Qt::AlignVCenter);
+    right->addStretch(1);
+    right->addWidget(lastButton, 0, Qt::AlignBottom);
+    mainLayout->addLayout(right);
 }
 
 void MyViewer::browse() {}
