@@ -9,12 +9,13 @@
 #include <QPushButton>
 // #include <QPixmap>
 // #include <QMessageBox>
-// #include <QFileDialog>
+#include <QFileDialog>
 // #include <quazip5/quazip.h>
 // #include <quazip5/quazipfile.h>
 // #include <QtConcurrent/QtConcurrent>
 // #include <QFutureWatcher>
 // #include <QPainter>
+#include <QDebug>
 
 // #include <thread>
 // #include <chrono>
@@ -23,6 +24,8 @@
 
 
 MyViewer::MyViewer(QWidget *parent) : QWidget(parent) {
+    qDebug() << "Opening viewer";
+
     // Mise en place de l'organisation de la fenêtre
     QHBoxLayout *mainLayout = new QHBoxLayout(this);
     QVBoxLayout *menu = new QVBoxLayout();
@@ -61,16 +64,54 @@ MyViewer::MyViewer(QWidget *parent) : QWidget(parent) {
     right->addStretch(1);
     right->addWidget(lastButton, 0, Qt::AlignBottom);
     mainLayout->addLayout(right);
+
+    // Connection des boutons avec fonctions "slots"
+    connect(loadButton, &QPushButton::clicked, this, &MyViewer::browse);
+    connect(nextButton, &QPushButton::clicked, this, &MyViewer::next);
+    connect(previousButton, &QPushButton::clicked, this, &MyViewer::previous);
+    connect(firstButton, &QPushButton::clicked, this, &MyViewer::first);
+    connect(lastButton, &QPushButton::clicked, this, &MyViewer::last);
 }
 
-void MyViewer::browse() {}
+void MyViewer::browse() {
+    qDebug() << "Debug log: Entering browse";
 
-void MyViewer::showCurrent() {}
+    filePath = QFileDialog::getOpenFileName(this, "Open Archive File", "", "Archives (*.zip);;Comics in CBZ format (*.cbz)");
+    if (!filePath.isEmpty()) {
+        comic = new MyComic(this, filePath);
+        currentIndex = 0;
+        showCurrent();
+    }
+}
 
-void MyViewer::next() {}
+void MyViewer::showCurrent() {
+    if (comic == NULL) return;
 
-void MyViewer::previous() {}
+    QPixmap* pixmap = comic->getPage(currentIndex);
+    imageBox->setPixmap(pixmap->scaled(imageBox->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation));
+}
 
-void MyViewer::first() {}
+void MyViewer::next() {
+    if (comic != NULL && currentIndex < comic->getNbPages()-1) {
+        ++currentIndex;
+        showCurrent();
+    }
+}
 
-void MyViewer::last() {}
+void MyViewer::previous() {
+    if (currentIndex > 0) {
+        --currentIndex;
+        showCurrent();
+    }
+}
+
+void MyViewer::first() {
+    currentIndex = 0;
+    showCurrent();
+}
+
+void MyViewer::last() {
+    if (comic == NULL) return;
+    currentIndex = comic->getNbPages()-1;
+    showCurrent();
+}

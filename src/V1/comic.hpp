@@ -9,10 +9,16 @@ class MyComic : public QWidget {
 
 public :
     MyComic(QWidget *parent = nullptr);
-    
+    MyComic(QWidget *parent = nullptr, QString filePath = "");
+
+    QPixmap* getPage(int whichPage);
+    int getNbPages();
 private :
-    int nbPages;
+    int nbPages = 0;
     QList<QPixmap> pages;
+    QStringList zipFiles;
+
+    void loadComic(QString filePath);
 };
 
 #endif
