@@ -76,9 +76,9 @@ MyViewer::MyViewer(QWidget *parent) : QWidget(parent) {
 void MyViewer::browse() {
     qDebug() << "Debug log: Entering browse";
 
-    filePath = QFileDialog::getOpenFileName(this, "Open Archive File", "", "Archives (*.zip);;Comics in CBZ format (*.cbz)");
+    filePath = QFileDialog::getOpenFileName(this, "Open Archive File", "", "Archives (*.zip);;Comics in CBZ format (*.cbz);;Comics in CBR format (*.cbr)");
     if (!filePath.isEmpty()) {
-        comic = new MyComic(this, filePath);
+        comic = new MyComicCBR(this, filePath);
         currentIndex = 0;
         showCurrent();
     }
