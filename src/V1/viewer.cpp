@@ -8,7 +8,7 @@
 // #include <QLineEdit>
 #include <QPushButton>
 // #include <QPixmap>
-// #include <QMessageBox>
+#include <QMessageBox>
 #include <QFileDialog>
 // #include <quazip5/quazip.h>
 // #include <quazip5/quazipfile.h>
@@ -75,12 +75,19 @@ MyViewer::MyViewer(QWidget *parent) : QWidget(parent) {
 
 void MyViewer::browse() {
     qDebug() << "Debug log: Entering browse";
+    MyComic* newComic;
 
     filePath = QFileDialog::getOpenFileName(this, "Open Archive File", "", "Archives (*.zip);;Comics in CBZ format (*.cbz);;Comics in CBR format (*.cbr)");
     if (!filePath.isEmpty()) {
-        comic = new MyComicCBR(this, filePath);
-        currentIndex = 0;
-        showCurrent();
+        newComic = MyComic::createComic(this, filePath);
+        if (newComic == NULL) {
+            QMessageBox::information(nullptr, "Warning", "Cannot open this file");
+        } else {
+            delete comic;
+            comic = newComic;
+            currentIndex = 0;
+            showCurrent();
+        }
     }
 }
 
