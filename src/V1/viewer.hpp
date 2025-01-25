@@ -13,6 +13,9 @@ class MyViewer : public QWidget {
 public :
     MyViewer(QWidget *parent = nullptr);
 
+protected :
+    void keyPressEvent(QKeyEvent *event) override;
+
 private slots :
     void browse();
     void showCurrent();

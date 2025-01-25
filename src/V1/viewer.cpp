@@ -15,6 +15,7 @@
 // #include <QtConcurrent/QtConcurrent>
 // #include <QFutureWatcher>
 // #include <QPainter>
+#include <QKeyEvent>
 #include <QDebug>
 
 // #include <thread>
@@ -71,7 +72,49 @@ MyViewer::MyViewer(QWidget *parent) : QWidget(parent) {
     connect(previousButton, &QPushButton::clicked, this, &MyViewer::previous);
     connect(firstButton, &QPushButton::clicked, this, &MyViewer::first);
     connect(lastButton, &QPushButton::clicked, this, &MyViewer::last);
+
+    // Accepter événements clavier
+    setFocusPolicy(Qt::StrongFocus);
 }
+
+void MyViewer::keyPressEvent(QKeyEvent *event) {
+    QMessageBox::StandardButton reply;
+    switch (event->key()) {
+        case Qt::Key_Right : 
+        case Qt::Key_Space :
+            qDebug() << "Right arrow or space bar pressed";
+            next();
+            break;
+        case Qt::Key_Left :
+            qDebug() << "Left arrow pressed";
+            previous();
+            break;
+        case Qt::Key_PageUp :
+            qDebug() << "PageUp arrow pressed";
+            first();
+            break;
+        case Qt::Key_PageDown :
+            qDebug() << "PageDown arrow pressed";
+            last();
+            break;
+        case Qt::Key_Return :
+            qDebug() << "Enter key pressed";
+            browse();
+            break;
+        case Qt::Key_Escape :
+            qDebug() << "Escape key pressed";
+            reply = QMessageBox::question(this, "Quitter", 
+                "Voulez-vous vraiment quitter ?", 
+                QMessageBox::Yes|QMessageBox::No);
+            if (reply == QMessageBox::Yes) {
+                close();
+            }
+            break;
+        default :
+            QWidget::keyPressEvent(event);
+    }
+}
+
 
 void MyViewer::browse() {
     qDebug() << "Debug log: Entering browse";

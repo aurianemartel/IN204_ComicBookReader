@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <QPixmap>
+#include <QStringList>
 
 class MyComic : public QObject {
    Q_OBJECT
@@ -20,26 +21,6 @@ protected :
     QStringList zipFiles;
 
     virtual void loadComic(QString filePath) = 0;
-};
-
-class MyComicCBZ : public MyComic {
-    Q_OBJECT
-
-public :
-    MyComicCBZ(QObject *parent = nullptr, QString filePath = "");
-
-private :
-    void loadComic(QString filePath);
-};
-
-class MyComicCBR : public MyComic {
-    Q_OBJECT
-
-public :
-    MyComicCBR(QObject *parent = nullptr, QString filePath = "");
-
-private :
-    void loadComic(QString filePath);
 };
 
 #endif

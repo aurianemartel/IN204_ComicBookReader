@@ -40,7 +40,7 @@ DISTNAME      = main1.0.0
 DISTDIR = /home/auriane/Documents/ENSTA/IN204/Projet/IN204_ComicBookReader/src/V1/.tmp/main1.0.0
 LINK          = g++
 LFLAGS        = -Wl,-O1
-LIBS          = $(SUBLIBS) -lquazip5 -larchive -lunrar /usr/lib/x86_64-linux-gnu/libQt5Widgets.so /usr/lib/x86_64-linux-gnu/libQt5Gui.so /usr/lib/x86_64-linux-gnu/libQt5Core.so -lGL -lpthread   
+LIBS          = $(SUBLIBS) -lquazip5 -lunrar /usr/lib/x86_64-linux-gnu/libQt5Widgets.so /usr/lib/x86_64-linux-gnu/libQt5Gui.so /usr/lib/x86_64-linux-gnu/libQt5Core.so -lGL -lpthread   
 AR            = ar cqs
 RANLIB        = 
 SED           = sed
@@ -54,13 +54,23 @@ OBJECTS_DIR   = ./
 
 SOURCES       = main.cpp \
 		viewer.cpp \
-		comic.cpp moc_viewer.cpp \
-		moc_comic.cpp
+		comic.cpp \
+		comicCBZ.cpp \
+		comicCBR.cpp \
+		gestionRAR.cpp moc_viewer.cpp \
+		moc_comic.cpp \
+		moc_comicCBZ.cpp \
+		moc_comicCBR.cpp
 OBJECTS       = main.o \
 		viewer.o \
 		comic.o \
+		comicCBZ.o \
+		comicCBR.o \
+		gestionRAR.o \
 		moc_viewer.o \
-		moc_comic.o
+		moc_comic.o \
+		moc_comicCBZ.o \
+		moc_comicCBR.o
 DIST          = /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/spec_pre.prf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/common/unix.conf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/common/linux.conf \
@@ -139,9 +149,15 @@ DIST          = /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/spec_pre.prf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/yacc.prf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/lex.prf \
 		main.pro viewer.hpp \
-		comic.hpp main.cpp \
+		comic.hpp \
+		comicCBZ.hpp \
+		comicCBR.hpp \
+		gestionRAR.hpp main.cpp \
 		viewer.cpp \
-		comic.cpp
+		comic.cpp \
+		comicCBZ.cpp \
+		comicCBR.cpp \
+		gestionRAR.cpp
 QMAKE_TARGET  = main
 DESTDIR       = 
 TARGET        = main
@@ -325,8 +341,8 @@ distdir: FORCE
 	@test -d $(DISTDIR) || mkdir -p $(DISTDIR)
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
 	$(COPY_FILE) --parents /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/data/dummy.cpp $(DISTDIR)/
-	$(COPY_FILE) --parents viewer.hpp comic.hpp $(DISTDIR)/
-	$(COPY_FILE) --parents main.cpp viewer.cpp comic.cpp $(DISTDIR)/
+	$(COPY_FILE) --parents viewer.hpp comic.hpp comicCBZ.hpp comicCBR.hpp gestionRAR.hpp $(DISTDIR)/
+	$(COPY_FILE) --parents main.cpp viewer.cpp comic.cpp comicCBZ.cpp comicCBR.cpp gestionRAR.cpp $(DISTDIR)/
 
 
 clean: compiler_clean 
@@ -358,9 +374,9 @@ compiler_moc_predefs_clean:
 moc_predefs.h: /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/data/dummy.cpp
 	g++ -pipe -O2 -std=gnu++11 -Wall -Wextra -dM -E -o moc_predefs.h /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/data/dummy.cpp
 
-compiler_moc_header_make_all: moc_viewer.cpp moc_comic.cpp
+compiler_moc_header_make_all: moc_viewer.cpp moc_comic.cpp moc_comicCBZ.cpp moc_comicCBR.cpp
 compiler_moc_header_clean:
-	-$(DEL_FILE) moc_viewer.cpp moc_comic.cpp
+	-$(DEL_FILE) moc_viewer.cpp moc_comic.cpp moc_comicCBZ.cpp moc_comicCBR.cpp
 moc_viewer.cpp: viewer.hpp \
 		comic.hpp \
 		moc_predefs.h \
@@ -371,6 +387,18 @@ moc_comic.cpp: comic.hpp \
 		moc_predefs.h \
 		/usr/lib/qt5/bin/moc
 	/usr/lib/qt5/bin/moc $(DEFINES) --include /home/auriane/Documents/ENSTA/IN204/Projet/IN204_ComicBookReader/src/V1/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++ -I/home/auriane/Documents/ENSTA/IN204/Projet/IN204_ComicBookReader/src/V1 -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I/usr/include/c++/13 -I/usr/include/x86_64-linux-gnu/c++/13 -I/usr/include/c++/13/backward -I/usr/lib/gcc/x86_64-linux-gnu/13/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include comic.hpp -o moc_comic.cpp
+
+moc_comicCBZ.cpp: comicCBZ.hpp \
+		comic.hpp \
+		moc_predefs.h \
+		/usr/lib/qt5/bin/moc
+	/usr/lib/qt5/bin/moc $(DEFINES) --include /home/auriane/Documents/ENSTA/IN204/Projet/IN204_ComicBookReader/src/V1/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++ -I/home/auriane/Documents/ENSTA/IN204/Projet/IN204_ComicBookReader/src/V1 -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I/usr/include/c++/13 -I/usr/include/x86_64-linux-gnu/c++/13 -I/usr/include/c++/13/backward -I/usr/lib/gcc/x86_64-linux-gnu/13/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include comicCBZ.hpp -o moc_comicCBZ.cpp
+
+moc_comicCBR.cpp: comicCBR.hpp \
+		comic.hpp \
+		moc_predefs.h \
+		/usr/lib/qt5/bin/moc
+	/usr/lib/qt5/bin/moc $(DEFINES) --include /home/auriane/Documents/ENSTA/IN204/Projet/IN204_ComicBookReader/src/V1/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++ -I/home/auriane/Documents/ENSTA/IN204/Projet/IN204_ComicBookReader/src/V1 -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I/usr/include/c++/13 -I/usr/include/x86_64-linux-gnu/c++/13 -I/usr/include/c++/13/backward -I/usr/lib/gcc/x86_64-linux-gnu/13/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include comicCBR.hpp -o moc_comicCBR.cpp
 
 compiler_moc_objc_header_make_all:
 compiler_moc_objc_header_clean:
@@ -396,14 +424,36 @@ viewer.o: viewer.cpp viewer.hpp \
 		comic.hpp
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o viewer.o viewer.cpp
 
-comic.o: comic.cpp comic.hpp
+comic.o: comic.cpp comic.hpp \
+		comicCBR.hpp \
+		comicCBZ.hpp
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o comic.o comic.cpp
+
+comicCBZ.o: comicCBZ.cpp comicCBZ.hpp \
+		comic.hpp
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o comicCBZ.o comicCBZ.cpp
+
+comicCBR.o: comicCBR.cpp comicCBR.hpp \
+		comic.hpp \
+		gestionRAR.hpp
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o comicCBR.o comicCBR.cpp
+
+gestionRAR.o: gestionRAR.cpp gestionRAR.hpp \
+		comicCBR.hpp \
+		comic.hpp
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o gestionRAR.o gestionRAR.cpp
 
 moc_viewer.o: moc_viewer.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_viewer.o moc_viewer.cpp
 
 moc_comic.o: moc_comic.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_comic.o moc_comic.cpp
+
+moc_comicCBZ.o: moc_comicCBZ.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_comicCBZ.o moc_comicCBZ.cpp
+
+moc_comicCBR.o: moc_comicCBR.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_comicCBR.o moc_comicCBR.cpp
 
 ####### Install
 
