@@ -9,7 +9,6 @@
 #include <quazip5/quazipfile.h>
 #include <archive.h>
 #include <archive_entry.h>
-
 #include <unrar/rar.hpp>
 #include <unrar/dll.hpp>
 
@@ -19,6 +18,7 @@
 // Fonctions privées : gestion du RAR
 //Ouverture de l'archive rar
 HANDLE openRAR(QString filePath) {
+    qDebug() << "Debug log: Entering openRAR";
     const char* archiveName = filePath.toUtf8().constData();
     RAROpenArchiveDataEx archiveData = {};
     archiveData.ArcName = (char*) archiveName;
@@ -34,6 +34,8 @@ HANDLE openRAR(QString filePath) {
 
 //Récupération dans une QStringList des noms de fichiers triés du RAR
 void getSortedFileNamesRAR(QString filePath, QStringList& zipFiles) {
+    qDebug() << "Debug log: Entering getSortedFileNamesRAR";
+
     zipFiles.clear();
     
     // Ouverture du rar
@@ -94,6 +96,7 @@ bool extractOneFile(HANDLE hRAR, QByteArray* fileData) {
 
 //Récupérer une page dans un CBR à partir de son nom
 HANDLE getImageFromNameCBR(HANDLE hRAR, QString filePath, QString fileName, QByteArray* fileData) {
+    qDebug() << QString("Debug log: Entering getImageFromNameCBR, fileName : %1").arg(fileName);
     fileData->clear();
     bool reloop = false;
     HANDLE locHRAR = hRAR;
@@ -246,6 +249,7 @@ void MyComicCBR::loadComic(QString filePath) {
 // Load en unrar dans l'ordre
 
 void MyComicCBR::loadComic(QString filePath) {
+    qDebug() << "Debug log: Entering loadComicCBR";
     // Clear previous data
     zipFiles.clear();
     pages.clear();
