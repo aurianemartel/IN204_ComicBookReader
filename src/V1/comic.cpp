@@ -17,11 +17,11 @@
 
 // Fonctions privées : gestion du RAR
 //Ouverture de l'archive rar
-HANDLE openRAR(QString filePath) {
-    qDebug() << "Debug log: Entering openRAR";
+HANDLE openRAR(QString filePath, RAROpenArchiveDataEx& archiveData) {
+    qDebug() << "Debug log: Entering openRAR" << filePath;
     const char* archiveName = filePath.toUtf8().constData();
-    RAROpenArchiveDataEx archiveData = {};
-    archiveData.ArcName = (char*) archiveName;
+    //RAROpenArchiveDataEx archiveData = {};
+    archiveData.ArcName = (char *) archiveName;
     archiveData.OpenMode = RAR_OM_EXTRACT;
     
     HANDLE hArc = RAROpenArchiveEx(&archiveData);
@@ -29,6 +29,7 @@ HANDLE openRAR(QString filePath) {
         qWarning("Erreur d'ouverture de l'archive");
         return NULL;
     }
+    // qDebug() << "Debug log: Opened " << hArc;
     return hArc;
 }
 
@@ -37,14 +38,24 @@ void getSortedFileNamesRAR(QString filePath, QStringList& zipFiles) {
     qDebug() << "Debug log: Entering getSortedFileNamesRAR";
 
     zipFiles.clear();
-    
+
     // Ouverture du rar
-    HANDLE hRAR = openRAR(filePath);
+    RAROpenArchiveDataEx archiveData = {};
+    HANDLE hRAR = openRAR(filePath, archiveData);
 
     // Boucle de lecture fichiers + ajout
     struct RARHeaderDataEx headerData = {};
     while (RARReadHeaderEx(hRAR, &headerData) == 0) {
-        zipFiles.append(QString::fromUtf8(headerData.FileName));
+        QString fileName = QString::fromUtf8(headerData.FileName);
+        // Vérifier que c'est bien une image d'abord
+        if (fileName.endsWith(".jpg", Qt::CaseInsensitive) || 
+            fileName.endsWith(".jpeg", Qt::CaseInsensitive) || 
+            fileName.endsWith(".bmp", Qt::CaseInsensitive) || 
+            fileName.endsWith(".png", Qt::CaseInsensitive)) {
+            zipFiles.append(fileName);
+        } else {
+            qWarning() << "Ignoring <<" << fileName <<">>";
+        } 
         RARProcessFile(hRAR, RAR_SKIP, NULL, NULL);
     }
 
@@ -57,8 +68,8 @@ void getSortedFileNamesRAR(QString filePath, QStringList& zipFiles) {
 
 
 //Récupération du contenu d'un fichier quand on est au bon header
-bool extractOneFile(HANDLE hRAR, QByteArray* fileData) {
-    // Créer un fichier temporaire
+bool extractOneFile(HANDLE hRAR, QByteArray& fileData) {
+    // Créer un fichier temporaireqDebug() << std::format("Debug log: Entering getImageFromNameCBR, fileName : {}", fileName);
     QTemporaryFile tempFile;
     if (!tempFile.open()) {
         qWarning("Impossible de créer un fichier temporaire.");
@@ -83,7 +94,7 @@ bool extractOneFile(HANDLE hRAR, QByteArray* fileData) {
     }
 
     // Lire le contenu du fichier dans le QByteArray
-    *fileData = extractedFile.readAll();
+    fileData = extractedFile.readAll();
     extractedFile.close();
 
     // Supprimer le fichier temporaire (QTemporaryFile s'en occupe déjà normalement)
@@ -95,29 +106,38 @@ bool extractOneFile(HANDLE hRAR, QByteArray* fileData) {
 }
 
 //Récupérer une page dans un CBR à partir de son nom
-HANDLE getImageFromNameCBR(HANDLE hRAR, QString filePath, QString fileName, QByteArray* fileData) {
+HANDLE getImageFromNameCBR(HANDLE hRAR, 
+                           QString filePath, QString fileName, QByteArray& fileData,
+                           RAROpenArchiveDataEx& archiveData) {
     qDebug() << QString("Debug log: Entering getImageFromNameCBR, fileName : %1").arg(fileName);
-    fileData->clear();
-    bool reloop = false;
-    HANDLE locHRAR = hRAR;
-    struct RARHeaderDataEx headerData = {};
     const char* targetFileName = fileName.toUtf8().constData();
+    fileData.clear();
+    bool reloop = false;
+    struct RARHeaderDataEx headerData = {};
+    HANDLE locHRAR = hRAR;
+
 
     while(true) {
         //if fin archive : fermer puis ouvrir
         if (RARReadHeaderEx(locHRAR, &headerData) != 0) {
             if (reloop) {
                 // Cas de boucle infinie
-                // Message d'erreur à ajouter
+                qWarning() << "File not found " << targetFileName;
                 return NULL;
                 }
             // fermer puis ouvrir
             RARCloseArchive(locHRAR);
-            locHRAR = openRAR(filePath);
+            qDebug() << "Traget 1 : " << targetFileName << " End target 1";
+            locHRAR = openRAR(filePath, archiveData);
+            if (locHRAR == NULL) qDebug() << "Reopened and got NULL!";
             reloop = true;
+            qDebug() << "Traget 2 : " << targetFileName << " End target 2";
         } else {
+            //qDebug() << "-- " << headerData.FileName;
             //if fini (j'ai mon fichier) : remplir fileData et return handle actuel
-            if (strcmp(targetFileName, headerData.FileName) == 0) {
+            if (strcmp(fileName.toUtf8().constData(),
+                        // targetFileName, 
+                        headerData.FileName) == 0) {
                 // Read the file data
                 if(!extractOneFile(locHRAR,fileData)) {
                     qWarning("Could not extract file");
@@ -256,18 +276,29 @@ void MyComicCBR::loadComic(QString filePath) {
 
     // Get file names in zipFiles : première ouverture/fermeture de l'archive
     getSortedFileNamesRAR(filePath, zipFiles);
+    nbPages = zipFiles.size(); // sinon pas de déplacement dans le fichier
 
     // Get files from file names
-    HANDLE hRAR = openRAR(filePath);
+    RAROpenArchiveDataEx archiveData = {};
+    HANDLE hRAR = openRAR(filePath, archiveData);
     // Get : création QByteArray, création Pixmap, boucle sur zipFiles d'ajout à pages
     QByteArray imageData;
     QPixmap pixmap;
 
     for (int i=0; i<zipFiles.size(); ++i) {
-        hRAR = getImageFromNameCBR(hRAR, filePath, zipFiles[i], &imageData);
-        pixmap.loadFromData(imageData);
-        pages.append(pixmap);
+        hRAR = getImageFromNameCBR(hRAR, filePath, zipFiles[i], imageData, archiveData);
+        if (hRAR  == NULL) {
+            qWarning() << "Incorrect handle";
+            return;
+        } else {
+            qWarning() << "Got some bytes: " << imageData.size();
+            pixmap.loadFromData(imageData);
+            pages.append(pixmap);
+            qWarning() << "Got pixmap: " << pages[i].width() << " x " << pages[i].height();
+        }
     }
+
+    qWarning() << "Got some pictures: " << pages.size();
 
     // Close
     RARCloseArchive(hRAR);
