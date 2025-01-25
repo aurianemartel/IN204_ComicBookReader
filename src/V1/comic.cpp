@@ -17,10 +17,10 @@
 
 // Fonctions privées : gestion du RAR
 //Ouverture de l'archive rar
-HANDLE openRAR(QString filePath, RAROpenArchiveDataEx& archiveData) {
+HANDLE openRAR(QString filePath) {
     qDebug() << "Debug log: Entering openRAR" << filePath;
     const char* archiveName = filePath.toUtf8().constData();
-    //RAROpenArchiveDataEx archiveData = {};
+    RAROpenArchiveDataEx archiveData = {};
     archiveData.ArcName = (char *) archiveName;
     archiveData.OpenMode = RAR_OM_EXTRACT;
     
@@ -40,8 +40,7 @@ void getSortedFileNamesRAR(QString filePath, QStringList& zipFiles) {
     zipFiles.clear();
 
     // Ouverture du rar
-    RAROpenArchiveDataEx archiveData = {};
-    HANDLE hRAR = openRAR(filePath, archiveData);
+    HANDLE hRAR = openRAR(filePath);
 
     // Boucle de lecture fichiers + ajout
     struct RARHeaderDataEx headerData = {};
@@ -107,36 +106,30 @@ bool extractOneFile(HANDLE hRAR, QByteArray& fileData) {
 
 //Récupérer une page dans un CBR à partir de son nom
 HANDLE getImageFromNameCBR(HANDLE hRAR, 
-                           QString filePath, QString fileName, QByteArray& fileData,
-                           RAROpenArchiveDataEx& archiveData) {
+                           QString filePath, QString fileName, QByteArray& fileData) {
     qDebug() << QString("Debug log: Entering getImageFromNameCBR, fileName : %1").arg(fileName);
-    const char* targetFileName = fileName.toUtf8().constData();
     fileData.clear();
     bool reloop = false;
     struct RARHeaderDataEx headerData = {};
     HANDLE locHRAR = hRAR;
-
 
     while(true) {
         //if fin archive : fermer puis ouvrir
         if (RARReadHeaderEx(locHRAR, &headerData) != 0) {
             if (reloop) {
                 // Cas de boucle infinie
-                qWarning() << "File not found " << targetFileName;
+                qWarning() << "File not found " << fileName;
                 return NULL;
                 }
             // fermer puis ouvrir
             RARCloseArchive(locHRAR);
-            qDebug() << "Traget 1 : " << targetFileName << " End target 1";
-            locHRAR = openRAR(filePath, archiveData);
+            qDebug() << "Reopening here : " << fileName;
+            locHRAR = openRAR(filePath);
             if (locHRAR == NULL) qDebug() << "Reopened and got NULL!";
             reloop = true;
-            qDebug() << "Traget 2 : " << targetFileName << " End target 2";
         } else {
-            //qDebug() << "-- " << headerData.FileName;
             //if fini (j'ai mon fichier) : remplir fileData et return handle actuel
             if (strcmp(fileName.toUtf8().constData(),
-                        // targetFileName, 
                         headerData.FileName) == 0) {
                 // Read the file data
                 if(!extractOneFile(locHRAR,fileData)) {
@@ -279,14 +272,13 @@ void MyComicCBR::loadComic(QString filePath) {
     nbPages = zipFiles.size(); // sinon pas de déplacement dans le fichier
 
     // Get files from file names
-    RAROpenArchiveDataEx archiveData = {};
-    HANDLE hRAR = openRAR(filePath, archiveData);
+    HANDLE hRAR = openRAR(filePath);
     // Get : création QByteArray, création Pixmap, boucle sur zipFiles d'ajout à pages
     QByteArray imageData;
     QPixmap pixmap;
 
     for (int i=0; i<zipFiles.size(); ++i) {
-        hRAR = getImageFromNameCBR(hRAR, filePath, zipFiles[i], imageData, archiveData);
+        hRAR = getImageFromNameCBR(hRAR, filePath, zipFiles[i], imageData);
         if (hRAR  == NULL) {
             qWarning() << "Incorrect handle";
             return;
