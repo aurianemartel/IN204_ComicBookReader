@@ -1,0 +1,29 @@
+@startuml
+
+Viewer -> Comic: Charger le Comic en asynchrone
+
+Comic -> ComicCBR: Crée un comic CBR
+
+ComicCBR -> loadNames: Charger les noms de pages triés
+loadNames -> ComicCBR
+
+ComicCBR -> loadPagesAsync: Lancer le chargement des pages
+activate loadPagesAsync
+loadPagesAsync -> ComicCBR: En cours
+
+ComicCBR -> Comic
+Comic -> Viewer: Rend la main
+
+loadPagesAsync -> loadPagesAsync: Charger page 1
+
+loadPagesAsync -> Viewer: Page 1 chargée
+
+Viewer -> Viewer: Ré-afficher la page 1
+
+loadPagesAsync -> loadPagesAsync: Charger page 2
+loadPagesAsync -> Viewer: Page 2 chargée
+
+loadPagesAsync -> loadPagesAsync:...
+deactivate loadPagesAsync
+
+@enduml

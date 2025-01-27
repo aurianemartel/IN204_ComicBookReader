@@ -1,9 +1,29 @@
-
 @startuml
-class Car
+class QWidget #LightGreen
+class QObject #LightGreen
+class Viewer
+class MyComic
+class MyComicCBR
+class MyComicCBZ
+class QStringList #LightGreen
+class "QList<QPixmap>" #LightGreen
+class QLabel #LightGreen
 
-Driver - Car : drives >
-Car *- Wheel : have 4 >
-Car -- Person : < owns
+QObject <|-- QWidget
+QObject <|-- QStringList
+QWidget <|-- QLabel
+QWidget <|-- Viewer
+QObject <|-- "QList<QPixmap>"
+QLabel <.. Viewer: ImageBox <
+QObject <|-- MyComic
+QStringList <.. MyComic : names <
+"QList<QPixmap>" <.. MyComic : pages <
+
+MyComic <.. Viewer : comic <
+
+MyComic <|-- MyComicCBR
+MyComic <|-- MyComicCBZ
+
+
 
 @enduml
