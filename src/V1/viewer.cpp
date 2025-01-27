@@ -133,7 +133,7 @@ void MyViewer::browse() {
     qDebug() << "Debug log: Entering browse";
     MyComic* newComic;
 
-    filePath = QFileDialog::getOpenFileName(this, "Open Archive File", "", "Archives (*.zip);;Comics in CBZ format (*.cbz);;Comics in CBR format (*.cbr)");
+    filePath = QFileDialog::getOpenFileName(this, "Open Archive File", "../../data", "Archives (*.zip *.cbz *.cbr);;Comics in CBZ format (*.zip,*.cbz);;Comics in CBR format (*.cbr)");
     if (!filePath.isEmpty()) {
         newComic = MyComic::createComic(this, filePath);
         if (newComic == NULL) {
