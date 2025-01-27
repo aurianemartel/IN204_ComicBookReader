@@ -11,8 +11,7 @@ class MyComic : public QObject {
 public :
     MyComic(QObject *parent = nullptr);
     
-    static MyComic* createComic(QObject *parent = nullptr, QString filePath = "",
-                                void(*notifyPageLoaded)(QObject* parent, int pageNumber) = nullptr);
+    static MyComic* createComic(QObject *parent = nullptr, QString filePath = "");
 
     QPixmap* getPage(int whichPage);
     int getNbPages();
@@ -25,6 +24,9 @@ protected :
     virtual void loadComic(QString filePath);
     virtual void loadNames(QString filePath) = 0;
     virtual void loadPagesAsync(QString filePath) = 0;
+    
+    void useNotifyLoading(int pageNumber);
+
 };
 
 #endif

@@ -12,20 +12,22 @@ class MyViewer : public QWidget {
 
 public :
     MyViewer(QWidget *parent = nullptr);
-    int currentIndex = 0;
-    void showCurrent();
+    
+    void notifyLoading(int pageNumber);
 
 protected :
     void keyPressEvent(QKeyEvent *event) override;
 
 private slots :
     void browse();
+    void showCurrent();
     void next();
     void previous();
     void first();
     void last();
 
 private :
+    int currentIndex = 0;
     QLabel *imageBox;
     MyComic* comic = NULL;
     QString filePath = "";

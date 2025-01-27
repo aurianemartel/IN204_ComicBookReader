@@ -7,8 +7,7 @@ class MyComicCBR : public MyComic {
     Q_OBJECT
 
 public :
-    MyComicCBR(QObject *parent = nullptr, QString filePath = "",
-               void(*notifyPageLoaded)(QObject *parent, int pageNumber) = nullptr);
+    MyComicCBR(QObject *parent = nullptr, QString filePath = "");
 
 private :
     void loadNames(QString filePath);

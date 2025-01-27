@@ -6,13 +6,15 @@
 #include <quazip5/quazip.h>
 #include <quazip5/quazipfile.h>
 
+// Pour tester asynchronicité :
+//#include <thread>
+//#include <chrono>
+
 #include "comicCBZ.hpp"
 
 // Méthodes MyComicCBZ
 
-MyComicCBZ::MyComicCBZ(QObject *parent, QString filePath,
-                       void(*notifyPageLoaded)(QObject* parent, int pageNumber)) : MyComic(parent) {
-    this->notifyPageLoaded = notifyPageLoaded; 
+MyComicCBZ::MyComicCBZ(QObject *parent, QString filePath) : MyComic(parent) {
     loadComic(filePath); 
 }
 
@@ -41,17 +43,40 @@ void MyComicCBZ::loadNames(QString filePath) {
         file.close();
         nextFile = zip.goToNextFile();
     }
-
     zip.close();
 }
 
-// À faire
 void MyComicCBZ::loadPagesAsync(QString filePath) {
+    QFuture<void> future = QtConcurrent::run([this, filePath]() {
+        QuaZip zip(filePath);
+        zip.open(QuaZip::mdUnzip);
 
+        // Création espace de stockage des données et emplacement de chargement images
+        QByteArray imageData;
+        QPixmap pixmap;
+
+        // Boucle d'ajout des pages à la liste
+        for (int i = 0; i < nbPages; ++i) {
+            zip.setCurrentFile(names[i]);
+            QuaZipFile file(&zip);
+            file.open(QIODevice::ReadOnly);
+
+            imageData = file.readAll();
+            pixmap.loadFromData(imageData);
+            pages[i] = pixmap;
+            
+            file.close();
+
+            // Notify viewer
+            useNotifyLoading(i);
+            //std::this_thread::sleep_for(std::chrono::seconds(5));
+        }
+        zip.close();
+    });
 }
 
 
-// Load simple, sans asynchronicité
+// Version 1 simple, sans asynchronicité
 
 void MyComicCBZ::simpleLoadComic(QString filePath) {
     QuaZip zip(filePath);

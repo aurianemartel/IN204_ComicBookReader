@@ -117,11 +117,9 @@ void MyViewer::keyPressEvent(QKeyEvent *event) {
     }
 }
 
-void notifyPageLoadedFunction(QObject* parent, int pageNumber) {
-    MyViewer *viewer = (MyViewer *) parent;
-
-    if (viewer->currentIndex == pageNumber) {
-        viewer->showCurrent();
+void MyViewer::notifyLoading(int pageNumber) {
+    if (currentIndex == pageNumber) {
+        showCurrent();
     }
 }
 
@@ -131,8 +129,7 @@ void MyViewer::browse() {
 
     filePath = QFileDialog::getOpenFileName(this, "Open Archive File", "", "Archives (*.zip);;Comics in CBZ format (*.cbz);;Comics in CBR format (*.cbr)");
     if (!filePath.isEmpty()) {
-        newComic = MyComic::createComic(this, filePath,
-                                        &notifyPageLoadedFunction);
+        newComic = MyComic::createComic(this, filePath);
         if (newComic == NULL) {
             QMessageBox::information(nullptr, "Warning", "Cannot open this file");
         } else {

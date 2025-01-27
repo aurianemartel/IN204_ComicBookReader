@@ -12,9 +12,7 @@
 
 // Méthodes MyComicCBR
 
-MyComicCBR::MyComicCBR(QObject *parent, QString filePath,
-                       void(*notifyPageLoaded)(QObject *parent, int pageNumber)) : MyComic(parent) {
-    this->notifyPageLoaded = notifyPageLoaded;
+MyComicCBR::MyComicCBR(QObject *parent, QString filePath) : MyComic(parent) {
     loadComic(filePath); 
 }
 
@@ -24,11 +22,7 @@ void MyComicCBR::loadNames(QString filePath) {
     getSortedFileNamesRAR(filePath, names);
 }   
 
-// En cours !!!
 void MyComicCBR::loadPagesAsync(QString filePath) {
-    
-    // Watcher ?
-
     QFuture<void> future = QtConcurrent::run([this, filePath]() {
         // Open rar
         HANDLE hRAR = openRAR(filePath);
@@ -48,12 +42,11 @@ void MyComicCBR::loadPagesAsync(QString filePath) {
                 pages[i] = pixmap;
             }
 
-            // Trigger UI : QMetaObject
-            (*notifyPageLoaded)(this->parent(), i);
+            // Notify viewer
+            useNotifyLoading(i);
         }
         RARCloseArchive(hRAR);
     });
-    // Watcher ?
 }
 
 

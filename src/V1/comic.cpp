@@ -1,5 +1,6 @@
 #include <QDebug>
 
+#include "viewer.hpp"
 #include "comic.hpp"
 #include "comicCBR.hpp"
 #include "comicCBZ.hpp"
@@ -9,14 +10,13 @@
 
 MyComic::MyComic(QObject *parent) : QObject(parent) {}
 
-MyComic* MyComic::createComic(QObject *parent, QString filePath,
-                              void (*notifyPageLoaded)(QObject *parent, int pageNumber)) {
+MyComic* MyComic::createComic(QObject *parent, QString filePath) {
     if (filePath.endsWith(".cbz", Qt::CaseInsensitive) ||
         filePath.endsWith(".zip", Qt::CaseInsensitive)) {
-        return new MyComicCBZ(parent, filePath, notifyPageLoaded);
+        return new MyComicCBZ(parent, filePath);
     } else if (filePath.endsWith(".cbr", Qt::CaseInsensitive) ||
                 filePath.endsWith(".rar", Qt::CaseInsensitive)) {
-        return new MyComicCBR(parent, filePath, notifyPageLoaded);
+        return new MyComicCBR(parent, filePath);
     } else {
         qWarning() << "Unrecognized file type for file : " << filePath;
         return NULL;
@@ -60,4 +60,15 @@ void MyComic::loadComic(QString filePath) {
 
     // Load the pages
     loadPagesAsync(filePath);
+}
+
+
+void MyComic::useNotifyLoading(int pageNumber) {
+    MyViewer *viewer = qobject_cast<MyViewer*>(this->parent());
+    if (viewer) {
+        // Call the parent method
+        viewer->notifyLoading(pageNumber);
+    } else {
+        qDebug() << "Parent is not of class MyViewer.";
+    }
 }
