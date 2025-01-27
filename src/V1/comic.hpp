@@ -1,7 +1,7 @@
 #ifndef COMIC_HPP
 #define COMIC_HPP
 
-#include <QWidget>
+#include <QObject>
 #include <QPixmap>
 #include <QStringList>
 
@@ -11,16 +11,20 @@ class MyComic : public QObject {
 public :
     MyComic(QObject *parent = nullptr);
     
-    static MyComic* createComic(QObject *parent = nullptr, QString filePath = "");
+    static MyComic* createComic(QObject *parent = nullptr, QString filePath = "",
+                                void(*notifyPageLoaded)(QObject* parent, int pageNumber) = nullptr);
 
     QPixmap* getPage(int whichPage);
     int getNbPages();
 protected :
     int nbPages = 0;
     QList<QPixmap> pages;
-    QStringList zipFiles;
+    QStringList names;
+    void (*notifyPageLoaded)(QObject *parent, int pageNumber) = nullptr;
 
-    virtual void loadComic(QString filePath) = 0;
+    virtual void loadComic(QString filePath);
+    virtual void loadNames(QString filePath) = 0;
+    virtual void loadPagesAsync(QString filePath) = 0;
 };
 
 #endif

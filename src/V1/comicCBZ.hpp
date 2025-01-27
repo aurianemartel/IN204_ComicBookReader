@@ -7,10 +7,13 @@ class MyComicCBZ : public MyComic {
     Q_OBJECT
 
 public :
-    MyComicCBZ(QObject *parent = nullptr, QString filePath = "");
+    MyComicCBZ(QObject *parent = nullptr, QString filePath = "",
+               void(*notifyPageLoaded)(QObject *parent, int pageNumber) = nullptr);
 
 private :
-    void loadComic(QString filePath);
+    void loadNames(QString filePath);
+    void loadPagesAsync(QString filePath);
+    void simpleLoadComic(QString filePath);
 };
 
 #endif

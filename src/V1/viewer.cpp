@@ -7,14 +7,9 @@
 #include <QLabel>
 // #include <QLineEdit>
 #include <QPushButton>
-// #include <QPixmap>
 #include <QMessageBox>
 #include <QFileDialog>
-// #include <quazip5/quazip.h>
-// #include <quazip5/quazipfile.h>
-// #include <QtConcurrent/QtConcurrent>
-// #include <QFutureWatcher>
-// #include <QPainter>
+#include <QPainter>
 #include <QKeyEvent>
 #include <QDebug>
 
@@ -75,6 +70,13 @@ MyViewer::MyViewer(QWidget *parent) : QWidget(parent) {
 
     // Accepter événements clavier
     setFocusPolicy(Qt::StrongFocus);
+
+    // Initialiser placeholder
+    placeholderPixmap = QPixmap(800, 600);
+    placeholderPixmap.fill(Qt::gray);
+    QPainter painter(&placeholderPixmap);
+    painter.drawText(placeholderPixmap.rect(), Qt::AlignCenter, "Please wait while loading...");
+
 }
 
 void MyViewer::keyPressEvent(QKeyEvent *event) {
@@ -115,6 +117,13 @@ void MyViewer::keyPressEvent(QKeyEvent *event) {
     }
 }
 
+void notifyPageLoadedFunction(QObject* parent, int pageNumber) {
+    MyViewer *viewer = (MyViewer *) parent;
+
+    if (viewer->currentIndex == pageNumber) {
+        viewer->showCurrent();
+    }
+}
 
 void MyViewer::browse() {
     qDebug() << "Debug log: Entering browse";
@@ -122,7 +131,8 @@ void MyViewer::browse() {
 
     filePath = QFileDialog::getOpenFileName(this, "Open Archive File", "", "Archives (*.zip);;Comics in CBZ format (*.cbz);;Comics in CBR format (*.cbr)");
     if (!filePath.isEmpty()) {
-        newComic = MyComic::createComic(this, filePath);
+        newComic = MyComic::createComic(this, filePath,
+                                        &notifyPageLoadedFunction);
         if (newComic == NULL) {
             QMessageBox::information(nullptr, "Warning", "Cannot open this file");
         } else {
@@ -136,9 +146,12 @@ void MyViewer::browse() {
 
 void MyViewer::showCurrent() {
     if (comic == NULL) return;
-
     QPixmap* pixmap = comic->getPage(currentIndex);
-    imageBox->setPixmap(pixmap->scaled(imageBox->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation));
+    if (pixmap->isNull()) {
+        imageBox->setPixmap(placeholderPixmap.scaled(imageBox->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation));
+    } else {
+        imageBox->setPixmap(pixmap->scaled(imageBox->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation));
+    }
 }
 
 void MyViewer::next() {

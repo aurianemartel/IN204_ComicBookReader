@@ -1,0 +1,51 @@
+RL7T2e8m6BtVKupkzG5aXEXLO9G51TxD-I4Bf-8M6VJmRRdL9ktkdE_yVDjIgUYaxg93hADIulBAcnQKGuVw1ioX2uS7J1Rid_aWE0jHdftMHEMYpchYVLjmgH2okPYyekXR6PAUt0hieA0rT25d5mi2DgNnalB8Pq77xGOjHapYsEeJl1EqXMoOCGczxcxU4X-VvN62Uof0QjkwPIKRTRwH8KVzslMKBPGtzShDK_xdAwHF2drZVkqD
+https://editor.plantuml.com/uml/SoWkIImgAStDuKhEIImkLd1EBEBYSYdAB4ijKj05yHIi5590t685EouGLqjN8JmZDJK7A9wHM9QgO08LrzLL24WjAixF0qhOAEINvnLpSJcavgM0Z0O0
+
+@startuml
+class QWidget
+class QObject
+class Viewer
+class MyComic
+class MyComicCBR
+class MyComicCBZ
+class QStringList
+
+QObject <|-- QWidget
+QObject <|-- QStringList
+QWidget <|-- QLabel
+QWidget <|-- Viewer
+QObject <|-- "QList<QPixmap>"
+QLabel <.. Viewer: ImageBox <
+QObject <|-- MyComic
+QStringList <.. MyComic : names <
+"QList<QPixmap>" <.. MyComic : pages <
+
+MyComic <.. Viewer : comic <
+
+MyComic <|-- MyComicCBR
+MyComic <|-- MyComicCBZ
+
+
+
+@enduml
+
+
+@startuml
+
+rectangle "Réalisé" {
+[Affichage] as Affichage
+[Gestion des Comics] as Comics
+
+Affichage --> Comics
+
+database "Système de fichiers" as Fichiers
+
+Comics --> Fichiers
+}
+
+[Gestion de bibliothèques] as Biblio #White
+Biblio --> Comics
+Biblio --> Fichiers
+
+@enduml
+

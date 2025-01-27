@@ -28,10 +28,10 @@ HANDLE openRAR(QString filePath) {
 }
 
 //Récupération dans une QStringList des noms de fichiers triés du RAR
-void getSortedFileNamesRAR(QString filePath, QStringList& zipFiles) {
+void getSortedFileNamesRAR(QString filePath, QStringList& names) {
     qDebug() << "Debug log: Entering getSortedFileNamesRAR";
 
-    zipFiles.clear();
+    names.clear();
 
     // Ouverture du rar
     HANDLE hRAR = openRAR(filePath);
@@ -45,7 +45,7 @@ void getSortedFileNamesRAR(QString filePath, QStringList& zipFiles) {
             fileName.endsWith(".jpeg", Qt::CaseInsensitive) || 
             fileName.endsWith(".bmp", Qt::CaseInsensitive) || 
             fileName.endsWith(".png", Qt::CaseInsensitive)) {
-            zipFiles.append(fileName);
+            names.append(fileName);
         } else {
             qWarning() << "Ignoring <<" << fileName <<">>";
         } 
@@ -56,7 +56,7 @@ void getSortedFileNamesRAR(QString filePath, QStringList& zipFiles) {
     RARCloseArchive(hRAR);
 
     // Tri
-    zipFiles.sort();
+    names.sort();
 }
 
 
