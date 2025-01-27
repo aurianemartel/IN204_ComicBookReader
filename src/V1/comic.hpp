@@ -26,7 +26,6 @@ protected :
     virtual void loadPagesAsync(QString filePath) = 0;
     
     void useNotifyLoading(int pageNumber);
-
 };
 
 #endif

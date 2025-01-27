@@ -43,7 +43,8 @@ void MyComic::loadComic(QString filePath) {
     names.clear();
     pages.clear();
 
-    // Load names : première boucle, première ouverture/fermeture de l'archive
+    // Load names : première boucle, 
+        // première ouverture/fermeture de l'archive
     loadNames(filePath);
 
     if (names.isEmpty()) {

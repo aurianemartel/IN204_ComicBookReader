@@ -31,6 +31,7 @@ MyViewer::MyViewer(QWidget *parent) : QWidget(parent) {
     // Création des widgets
     imageBox = new QLabel("Image not loaded");
     imageBox->setAlignment(Qt::AlignCenter);
+    imageBox->setMinimumSize(100,100);
 
     QPushButton *loadButton = new QPushButton("Load");
     loadButton->setFixedSize(100, 25);
@@ -84,23 +85,23 @@ void MyViewer::keyPressEvent(QKeyEvent *event) {
     switch (event->key()) {
         case Qt::Key_Right : 
         case Qt::Key_Space :
-            qDebug() << "Right arrow or space bar pressed";
+            //qDebug() << "Right arrow or space bar pressed";
             next();
             break;
         case Qt::Key_Left :
-            qDebug() << "Left arrow pressed";
+            //qDebug() << "Left arrow pressed";
             previous();
             break;
         case Qt::Key_PageUp :
-            qDebug() << "PageUp arrow pressed";
+            //qDebug() << "PageUp arrow pressed";
             first();
             break;
         case Qt::Key_PageDown :
-            qDebug() << "PageDown arrow pressed";
+            //qDebug() << "PageDown arrow pressed";
             last();
             break;
         case Qt::Key_Return :
-            qDebug() << "Enter key pressed";
+            //qDebug() << "Enter key pressed";
             browse();
             break;
         case Qt::Key_Escape :
@@ -115,6 +116,11 @@ void MyViewer::keyPressEvent(QKeyEvent *event) {
         default :
             QWidget::keyPressEvent(event);
     }
+}
+
+void MyViewer::resizeEvent(QResizeEvent *event) {
+    showCurrent();
+    QWidget::resizeEvent(event);
 }
 
 void MyViewer::notifyLoading(int pageNumber) {

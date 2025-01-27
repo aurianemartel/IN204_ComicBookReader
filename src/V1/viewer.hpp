@@ -3,9 +3,9 @@
 
 #include <QWidget>
 #include <QLabel>
+#include <QResizeEvent>
 
 #include "comic.hpp"
-
 
 class MyViewer : public QWidget {
    Q_OBJECT
@@ -17,6 +17,7 @@ public :
 
 protected :
     void keyPressEvent(QKeyEvent *event) override;
+    void resizeEvent(QResizeEvent *event) override;
 
 private slots :
     void browse();

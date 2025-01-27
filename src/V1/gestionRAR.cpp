@@ -62,7 +62,7 @@ void getSortedFileNamesRAR(QString filePath, QStringList& names) {
 
 //Récupération du contenu d'un fichier quand on est au bon header
 bool extractOneFile(HANDLE hRAR, QByteArray& fileData) {
-    // Créer un fichier temporaireqDebug() << std::format("Debug log: Entering getImageFromNameCBR, fileName : {}", fileName);
+    // Créer un fichier temporaire
     QTemporaryFile tempFile;
     if (!tempFile.open()) {
         qWarning("Impossible de créer un fichier temporaire.");
@@ -100,7 +100,7 @@ bool extractOneFile(HANDLE hRAR, QByteArray& fileData) {
 
 //Récupérer une page dans un CBR à partir de son nom
 HANDLE getImageFromNameCBR(HANDLE hRAR, QString filePath, QString fileName, QByteArray& fileData) {
-    qDebug() << QString("Debug log: Entering getImageFromNameCBR, fileName : %1").arg(fileName);
+    //qDebug() << QString("Debug log: Entering getImageFromNameCBR, fileName : %1").arg(fileName);
     fileData.clear();
     bool reloop = false;
     struct RARHeaderDataEx headerData = {};
